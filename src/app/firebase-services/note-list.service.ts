@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Note } from '../interfaces/note.interface';
 import { Firestore, collectionData, collection, doc, onSnapshot } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import { elementAt, Observable } from 'rxjs';
 
 
 @Injectable({
@@ -13,29 +13,40 @@ normalNotes: Note[] = [];
 
 
   unsubList;  
-  unsubSingle;
+  unsubSingle = () => {}; 
 
-  items$;
+  items;
+  items$: Observable<any>;
   firestore: Firestore = inject(Firestore);
 
   constructor() { 
     this.unsubList = onSnapshot(this.getNotesRef(), (list) => {
       list.forEach(element => {
-      console.log(element);
+      console.log(element.id);
       })
       });
   
-      this.unsubSingle = onSnapshot(this.getSingleDocRef("notes", "AVQ20nwly6hPobaMCD0d"), (element) => {
-      // und hier kann man mit dem Element nun machen was man will
+     
+      this.items$ = collectionData(this.getNotesRef()) 
+      this.items = this.items$.subscribe((list) => {
+        list.forEach((element: any) => {
+          console.log(element);
+        });
       })
-    
-    
+   
+
+      // this.unsubSingle = onSnapshot(this.getSingleDocRef("notes", "AVQ20nwly6hPobaMCD0d"), (element) => {
+      // // und hier kann man mit dem Element nun machen was man will
+      // })
+      
     };
+
+    ngOnDestroy(){
+      this. unsubList();
+      this.items.unsubscribe();
+    }
   
-
-    // this.items$ = collectionData(this.getNotesRef());
-    // }
-
+    
   getNotesRef() {
     return collection(this.firestore, 'notes');}
 
