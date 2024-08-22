@@ -5,3 +5,6 @@ export interface Note {
     content:string;
     marked: boolean;
 }
+
+
+

@@ -7,6 +7,8 @@ import { NoteComponent } from './note/note.component';
 
 
 
+
+
 @Component({
   selector: 'app-note-list',
   standalone: true,
@@ -20,8 +22,22 @@ export class NoteListComponent {
   status: "notes" | "trash" = "notes";
 
   constructor(public noteService: NoteListService) {
-    this.noteList = this.getDummyData()
+    // this.noteList = this.getList()
+
+
   }
+
+  getList(listToGet: 'normal'|'trash'){
+if (listToGet == 'normal'){
+  return this.noteService.normalNotes;
+} else if(listToGet == 'trash'){
+  return this.noteService.trashNotes;}
+  
+return [];
+}
+
+  
+    
 
   changeFavFilter(filter:"all" | "fav"){
     this.favFilter = filter;

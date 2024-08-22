@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Note } from '../interfaces/note.interface';
-import { Firestore, collectionData, collection, doc, onSnapshot } from '@angular/fire/firestore';
+import { Firestore, collectionData, collection, doc, onSnapshot, addDoc } from '@angular/fire/firestore';
 import { elementAt, Observable } from 'rxjs';
 
 
@@ -12,41 +12,60 @@ trashNotes: Note[] = [];
 normalNotes: Note[] = [];
 
 
-  unsubList;  
-  unsubSingle = () => {}; 
+  unsubTrash;  
+  unsubNotes = () => {}; 
 
-  items;
-  items$: Observable<any>;
+
   firestore: Firestore = inject(Firestore);
 
   constructor() { 
-    this.unsubList = onSnapshot(this.getNotesRef(), (list) => {
-      list.forEach(element => {
-      console.log(element.id);
-      })
-      });
-  
-     
-      this.items$ = collectionData(this.getNotesRef()) 
-      this.items = this.items$.subscribe((list) => {
-        list.forEach((element: any) => {
-          console.log(element);
-        });
-      })
-   
-
-      // this.unsubSingle = onSnapshot(this.getSingleDocRef("notes", "AVQ20nwly6hPobaMCD0d"), (element) => {
-      // // und hier kann man mit dem Element nun machen was man will
-      // })
-      
+    this.unsubNotes = this.subNotesList();
+    this.unsubTrash = this.subTrashList();   
     };
 
-    ngOnDestroy(){
-      this. unsubList();
-      this.items.unsubscribe();
-    }
-  
+  async addNote(item: {}){
+    await addDoc(this.getNotesRef(), item).catch(
+(err)=>{console.log(err)}
+    ).then(
+(docRef)=>{console.log('document written with ID: ', docRef?.id);})
     
+  }
+
+  
+
+  ngOnDestroy(){
+    this.unsubNotes();
+    this.unsubTrash();
+  }
+  
+  subTrashList()  {
+    return onSnapshot(this.getTrashRef(), (list) => {
+      this.trashNotes = [];
+      list.forEach(element => {
+      this.trashNotes.push(this.setNoteObject(element.data(), element.id));
+      })
+      });
+  }
+
+  subNotesList(){
+    return onSnapshot(this.getNotesRef(), (list) => {
+      this.normalNotes = [];
+        list.forEach(element => {      
+        this.normalNotes.push(this.setNoteObject(element.data(), element.id));
+      })
+      });
+  }
+
+  setNoteObject(obj: any, id: string): Note {
+    return {  
+      id: id || "",
+      type: obj.type || "note",
+      title: obj.title || "",
+      content: obj.content || "",
+      marked: obj.marked || false,
+    }
+  }
+
   getNotesRef() {
     return collection(this.firestore, 'notes');}
 
@@ -54,7 +73,8 @@ normalNotes: Note[] = [];
   getTrashRef() {
       return collection(this.firestore, 'trash');}
     
-getSingleDocRef(colId: string, docId: string){
-return doc(collection(this.firestore, 'collId'), docId);
+  getSingleDocRef(colId: string, docId: string){
+    return doc(collection(this.firestore, 'collId'), docId);
+  }
 }
-}
+
