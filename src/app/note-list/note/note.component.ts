@@ -54,9 +54,7 @@ export class NoteComponent {
 
   deleteNote(){
     if(this.note.id){
-      let docId = this.note.id;
-      delete this.note.id;
-      this.noteService.deleteNote("notes", docId);
+      this.noteService.deleteNote("notes", this.note.id);
     }
   }
 

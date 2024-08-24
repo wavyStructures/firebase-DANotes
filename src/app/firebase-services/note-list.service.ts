@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Note } from '../interfaces/note.interface';
-import { Firestore, collectionData, collection, doc, onSnapshot, addDoc, updateDoc, deleteDoc } from '@angular/fire/firestore';
+import { query, orderBy, limit, where, Firestore, collectionData, collection, doc, onSnapshot, addDoc, updateDoc, deleteDoc } from '@angular/fire/firestore';
 import { elementAt, Observable } from 'rxjs';
 
 
@@ -63,13 +63,21 @@ if(note.id){
   }
   
 
-  ngOnDestroy(){
-    this.unsubNotes();
-    this.unsubTrash();
-  }
+  
   
   subNotesList(){
-    return onSnapshot(this.getNotesRef(), (list) => {
+    const q = query(this.getNotesRef(), limit(100 ))
+    return onSnapshot(q, (list) => {
+      this.normalNotes = [];
+        list.forEach(element => {      
+        this.normalNotes.push(this.setNoteObject(element.data(), element.id));
+      })
+      });
+  }
+
+  subMarkedNotesList(){
+    const q = query(this.getNotesRef(), where("marked", "==", "true"), limit(100 ))
+    return onSnapshot(q, (list) => {
       this.normalNotes = [];
         list.forEach(element => {      
         this.normalNotes.push(this.setNoteObject(element.data(), element.id));

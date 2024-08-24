@@ -12,35 +12,35 @@ import { NoteComponent } from './note/note.component';
   templateUrl: './note-list.component.html',
   styleUrl: './note-list.component.scss'
 })
-export class NoteListComponent implements OnInit {
+export class NoteListComponent {
   noteList: Note[] = [];
   favFilter: "all" | "fav" = "all";
   status: "notes" | "trash" = "notes";
 
   constructor(public noteService: NoteListService) {
+  }
+
+
+
+  // getList(listToGet: 'normal'|'trash'): Note[]{
+  getList(): Note[]{
+      if(this.status == "notes"){
+        return this.noteService.normalNotes;
+      } else {
+        return this.noteService.trashNotes;
       }
+  }
+  //     if (listToGet == 'normal'){
+  //   return this.noteService.normalNotes;
+  // } else if(listToGet == 'trash'){
+  //   return this.noteService.trashNotes
+  // }
+  //   return [];
+  // }
 
-  ngOnInit(){
-    this.updateNoteList();
-  }
-
-  getList(listToGet: 'normal'|'trash'): Note[]{
-      if (listToGet == 'normal'){
-    return this.noteService.normalNotes;
-  } else if(listToGet == 'trash'){
-    return this.noteService.trashNotes
-  }
-    return [];
-  }
-
-  updateNoteList(){
-    this.noteList = this.getList(this.status === 'notes' ? 'normal' : 'trash');
-   
-  }
 
   changeFavFilter(filter:"all" | "fav"){
     this.favFilter = filter;
-    this.updateNoteList();
   }
 
   changeTrashStatus(){
@@ -50,7 +50,6 @@ export class NoteListComponent implements OnInit {
       this.status = "trash";
       this.favFilter = "all";
     }
-    this.updateNoteList();
   }
 
 
