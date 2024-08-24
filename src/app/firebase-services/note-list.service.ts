@@ -10,16 +10,18 @@ import { elementAt, Observable } from 'rxjs';
 export class NoteListService {
 trashNotes: Note[] = [];
 normalNotes: Note[] = [];
-
+normalMarkedNotes: Note[] = [];
 
   unsubTrash;  
   unsubNotes = () => {}; 
+  unsubMarkedNotes;
 
 
   firestore: Firestore = inject(Firestore);
 
   constructor() { 
     this.unsubNotes = this.subNotesList();
+    this.unsubMarkedNotes = this.subMarkedNotesList();
     this.unsubTrash = this.subTrashList();   
     };
 
@@ -38,22 +40,22 @@ normalNotes: Note[] = [];
   // (err) => {console.log(err);}).then((docRef) => {console.log('document written with ID: ', docRef?.id);})
 
 
-getCleanJSON(note: Note): {} {
+  getCleanJSON(note: Note): {} {
   return {
     type: note.type,
     title: note.title,
     content: note.content,
     marked: note.marked,
   }
-}
+  }
 
-getColIdFromNote(note: Note){
+  getColIdFromNote(note: Note){
 if(note.id){
   return 'notes';
 } else {
   return 'trash';
 }
-}
+  }
 
   async addNote(item: Note, colId: "notes" | "trash"){
     await addDoc(this.getNotesRef(), item).catch(
@@ -63,6 +65,11 @@ if(note.id){
   }
   
 
+  ngOnDestroy() {
+    this.unsubNotes();
+    this.unsubTrash();
+    this.unsubMarkedNotes();
+  }
   
   
   subNotesList(){
