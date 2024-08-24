@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Note } from '../interfaces/note.interface';
-import { Firestore, collectionData, collection, doc, onSnapshot, addDoc, updateDoc } from '@angular/fire/firestore';
+import { Firestore, collectionData, collection, doc, onSnapshot, addDoc, updateDoc, deleteDoc } from '@angular/fire/firestore';
 import { elementAt, Observable } from 'rxjs';
 
 
@@ -23,9 +23,15 @@ normalNotes: Note[] = [];
     this.unsubTrash = this.subTrashList();   
     };
 
+
+  async deleteNote (colId: "notes" | "trash", docId: string){
+    await  deleteDoc(this.getSingleDocRef(colId, docId)).catch(
+        (err) =>  {console.log(err);})
+    }
+
   async updateNote(note: Note){
     if(note.id){
-let colRef = this.getSingleDocRef(this.getColIdFromNote(note), note.id);
+    let colRef = this.getSingleDocRef(this.getColIdFromNote(note), note.id);
       await updateDoc(colRef, this.getCleanJSON(note)).catch(
       (err) => {console.log(err);}).then(); 
     }}
@@ -49,14 +55,12 @@ if(note.id){
 }
 }
 
-  async addNote(item: {}){
+  async addNote(item: Note, colId: "notes" | "trash"){
     await addDoc(this.getNotesRef(), item).catch(
 (err)=>{console.log(err)}
     ).then(
-(docRef)=>{console.log('document written with ID: ', docRef?.id);})
-    
+    (docRef)=>{console.log('document written with ID: ', docRef?.id);})
   }
-
   
 
   ngOnDestroy(){
@@ -64,20 +68,21 @@ if(note.id){
     this.unsubTrash();
   }
   
-  subTrashList()  {
-    return onSnapshot(this.getTrashRef(), (list) => {
-      this.trashNotes = [];
-      list.forEach(element => {
-      this.trashNotes.push(this.setNoteObject(element.data(), element.id));
-      })
-      });
-  }
-
   subNotesList(){
     return onSnapshot(this.getNotesRef(), (list) => {
       this.normalNotes = [];
         list.forEach(element => {      
         this.normalNotes.push(this.setNoteObject(element.data(), element.id));
+      })
+      });
+  }
+
+
+  subTrashList()  {
+    return onSnapshot(this.getTrashRef(), (list) => {
+      this.trashNotes = [];
+      list.forEach(element => {
+      this.trashNotes.push(this.setNoteObject(element.data(), element.id));
       })
       });
   }

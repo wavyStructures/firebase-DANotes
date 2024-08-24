@@ -39,7 +39,13 @@ export class NoteComponent {
   }
 
   moveToTrash(){
-    this.note.type = 'trash';
+    if(this.note.id){
+      this.note.type = 'trash';
+      let docId = this.note.id;
+      this.noteService.addNote(this.note, "trash");
+      this.noteService.deleteNote("notes", docId);
+    }
+    // hier wäre jetzt für undefined ein console.log gut, aber wir wissen ja wie wir es definiert haben
   }
 
   moveToNotes(){
@@ -47,7 +53,11 @@ export class NoteComponent {
   }
 
   deleteNote(){
-
+    if(this.note.id){
+      let docId = this.note.id;
+      delete this.note.id;
+      this.noteService.deleteNote("notes", docId);
+    }
   }
 
   saveNote(){

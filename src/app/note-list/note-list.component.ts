@@ -1,13 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Note } from '../interfaces/note.interface';
 import { NoteListService } from '../firebase-services/note-list.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { NoteComponent } from './note/note.component';
-
-
-
-
 
 @Component({
   selector: 'app-note-list',
@@ -16,31 +12,35 @@ import { NoteComponent } from './note/note.component';
   templateUrl: './note-list.component.html',
   styleUrl: './note-list.component.scss'
 })
-export class NoteListComponent {
+export class NoteListComponent implements OnInit {
   noteList: Note[] = [];
   favFilter: "all" | "fav" = "all";
   status: "notes" | "trash" = "notes";
 
   constructor(public noteService: NoteListService) {
-    // this.noteList = this.getList()
+      }
 
-
+  ngOnInit(){
+    this.updateNoteList();
   }
 
-  getList(listToGet: 'normal'|'trash'){
-if (listToGet == 'normal'){
-  return this.noteService.normalNotes;
-} else if(listToGet == 'trash'){
-  return this.noteService.trashNotes;}
-  
-return [];
-}
+  getList(listToGet: 'normal'|'trash'): Note[]{
+      if (listToGet == 'normal'){
+    return this.noteService.normalNotes;
+  } else if(listToGet == 'trash'){
+    return this.noteService.trashNotes
+  }
+    return [];
+  }
 
-  
-    
+  updateNoteList(){
+    this.noteList = this.getList(this.status === 'notes' ? 'normal' : 'trash');
+   
+  }
 
   changeFavFilter(filter:"all" | "fav"){
     this.favFilter = filter;
+    this.updateNoteList();
   }
 
   changeTrashStatus(){
@@ -50,9 +50,8 @@ return [];
       this.status = "trash";
       this.favFilter = "all";
     }
+    this.updateNoteList();
   }
-
-
 
 
   getDummyData(): Note[] {
