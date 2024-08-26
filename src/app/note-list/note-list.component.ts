@@ -20,25 +20,18 @@ export class NoteListComponent {
   constructor(public noteService: NoteListService) {
   }
 
-
-
-  // getList(listToGet: 'normal'|'trash'): Note[]{
-  getList(): Note[]{
-      if(this.status == "notes"){
+  getList(): Note[] {
+      if(this.status == 'notes'){
+        if(this.favFilter == 'all') {
         return this.noteService.normalNotes;
+        } else {
+          return this.noteService.normalMarkedNotes;
+        }
       } else {
         return this.noteService.trashNotes;
       }
   }
-  //     if (listToGet == 'normal'){
-  //   return this.noteService.normalNotes;
-  // } else if(listToGet == 'trash'){
-  //   return this.noteService.trashNotes
-  // }
-  //   return [];
-  // }
-
-
+  
   changeFavFilter(filter:"all" | "fav"){
     this.favFilter = filter;
   }

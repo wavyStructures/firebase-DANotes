@@ -44,7 +44,10 @@ export class NoteComponent {
       let docId = this.note.id;
       this.noteService.addNote(this.note, "trash");
       this.noteService.deleteNote("notes", docId);
+      console.log('die bekannte note.id und dazu noch docId', this.note.id, docId);
     }
+    this.saveNote();
+
     // hier wäre jetzt für undefined ein console.log gut, aber wir wissen ja wie wir es definiert haben
   }
 
