@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { Note } from '../../interfaces/note.interface';
-import { NoteListService } from '../../firebase-services/note-list.service'
+import { NoteListService } from '../../firebase-services/note-list.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
@@ -9,59 +9,67 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [FormsModule, CommonModule],
   templateUrl: './note.component.html',
-  styleUrl: './note.component.scss'
+  styleUrl: './note.component.scss',
 })
 export class NoteComponent {
-  @Input() note!:Note;
+  @Input() note!: Note;
   edit = false;
   hovered = false;
-  
-  constructor(private noteService: NoteListService){}
 
-  changeMarkedStatus(){
+  constructor(private noteService: NoteListService) {}
+
+  changeMarkedStatus() {
     this.note.marked = !this.note.marked;
     this.saveNote();
   }
 
-  deleteHovered(){
-    if(!this.edit){
+  deleteHovered() {
+    if (!this.edit) {
       this.hovered = false;
     }
   }
 
-  openEdit(){
+  openEdit() {
     this.edit = true;
   }
 
-  closeEdit(){
+  closeEdit() {
     this.edit = false;
     this.saveNote();
   }
 
-  moveToTrash(){
-    if(this.note.id){
+  moveToTrash() {
+    if (this.note.id) {
       this.note.type = 'trash';
       let docId = this.note.id;
-      this.noteService.addNote(this.note, "trash");
-      this.noteService.deleteNote("notes", docId);
-      console.log('die bekannte note.id und dazu noch docId', this.note.id, docId);
+      this.noteService.addNote(this.note, 'trash');
+      this.noteService.deleteNote('notes', docId);
     }
     this.saveNote();
-
     // hier wäre jetzt für undefined ein console.log gut, aber wir wissen ja wie wir es definiert haben
   }
 
-  moveToNotes(){
-    this.note.type = 'note';
-  }
-
-  deleteNote(){
-    if(this.note.id){
-      this.noteService.deleteNote("notes", this.note.id);
+  moveToNotes() {
+    if (this.note.id) {
+      this.note.type = 'note';
+      let docId = this.note.id;
+      this.noteService.addNote(this.note, 'notes');
+      this.noteService.deleteNote('trash', docId);
+      console.log(
+        'die bekannte note.id und dazu noch docId',
+        this.note.id,
+        docId
+      );
     }
   }
 
-  saveNote(){
+  deleteNote() {
+    if (this.note.id) {
+      this.noteService.deleteNote('notes', this.note.id);
+    }
+  }
+
+  saveNote() {
     this.noteService.updateNote(this.note);
   }
 }

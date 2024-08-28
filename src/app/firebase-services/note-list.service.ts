@@ -97,11 +97,28 @@ export class NoteListService {
   }
 
   subNotesList() {
+    // let ref = collection(
+    //   this.firestore,
+    //   'notes/2jUqOsWg2LgpCbM1h9pl/extraSammlung'
+    // );
+    // const q = query(ref, limit(100));
+
     const q = query(this.getNotesRef(), limit(100));
     return onSnapshot(q, (list) => {
       this.normalNotes = [];
       list.forEach((element) => {
         this.normalNotes.push(this.setNoteObject(element.data(), element.id));
+      });
+      list.docChanges().forEach((change) => {
+        if (change.type === 'added') {
+          console.log('New note: ', change.doc.data());
+        }
+        if (change.type === 'modified') {
+          console.log('Modified note: ', change.doc.data());
+        }
+        if (change.type === 'removed') {
+          console.log('Removed note: ', change.doc.data());
+        }
       });
     });
   }
